@@ -1,6 +1,7 @@
 package br.com.zupacademy.rafael.treinomercadolivre.cadastroproduto;
 
 import br.com.zupacademy.rafael.treinomercadolivre.cadasdastrocategoria.Categoria;
+import br.com.zupacademy.rafael.treinomercadolivre.cadastroimagemproduto.ImagemProduto;
 import br.com.zupacademy.rafael.treinomercadolivre.novousuario.Usuario;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.util.Assert;
@@ -56,6 +57,11 @@ public class Produto {
     @NotNull
     private LocalDateTime instanteDaCriacao = LocalDateTime.now();
 
+    @NotNull
+    @Valid
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.MERGE)
+    private Set<ImagemProduto> imagens = new HashSet<ImagemProduto>();
+
     @Deprecated
     public Produto() {
     }
@@ -74,6 +80,8 @@ public class Produto {
                 .collect(Collectors.toSet());
 
         Assert.isTrue(caracteristicasProduto.size() >= 3, "É preciso de no mínimo 3 característica para cadastrar um produto.");
+        Assert.isNull(usuario, "O usuário não pode ser nulo");
+        Assert.isNull(categoria, "Você precisa informar uma categoria");
 
         this.caracteristicas = caracteristicasProduto;
         this.descricao = descricao;
@@ -85,6 +93,22 @@ public class Produto {
     public String toString() {
         return "Produto [id=" + id + ", nome=" + nome + ", valor=" + valor + ", quantidadeDisponivel="
                 + quantidadeDisponivel + ", caracteristicas=" + caracteristicas + ", descricao=" + descricao
-                + ", categoria=" + categoria + ", Usuario=" + usuario + ", Instante de Criação=" + instanteDaCriacao + "]";
+                + ", categoria=" + categoria + ", Usuario=" + usuario + ", Instante de Criação=" + instanteDaCriacao + "" +
+                ", imagens=" + imagens + "]";
+    }
+
+    public Long idUsuarioPertenceAProduto() {
+        return usuario.getId();
+    }
+
+    public void associaImagens(Set<String> links) {
+        Set<ImagemProduto> imagens = links.stream().map(link -> new ImagemProduto(this, link))
+                .collect(Collectors.toSet());
+
+        this.imagens.addAll(imagens);
+    }
+
+    public boolean pertenceAoUsuario(Usuario usuarioAutenticado) {
+        return this.usuario.equals(usuarioAutenticado);
     }
 }
