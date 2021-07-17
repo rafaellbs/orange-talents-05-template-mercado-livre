@@ -108,6 +108,14 @@ public class Produto {
         this.imagens.addAll(imagens);
     }
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
     public boolean pertenceAoUsuario(Usuario usuarioAutenticado) {
         return this.usuario.equals(usuarioAutenticado);
     }
